@@ -1,42 +1,92 @@
 # M5 Retail Sales Forecasting
 
-A machine learning project for forecasting Walmart retail sales using the Kaggle M5 Forecasting competition dataset.
+A LightGBM-based retail demand forecasting pipeline for the [Kaggle M5 Forecasting — Accuracy competition](https://www.kaggle.com/competitions/m5-forecasting-accuracy).
 
-## Project Overview
+This project formulates daily unit-sales prediction as a supervised learning problem and implements feature engineering, sampled-series model training, recursive multi-step inference, and submission validation.
 
-The goal is to forecast daily sales for thousands of retail product-store combinations over a 28-day horizon.
+## 1. Problem Definition
 
-This project explores time-series feature engineering, LightGBM modeling, validation, and recursive multi-step forecasting.
+The objective is to predict daily sales for Walmart product–store combinations over a 28-day horizon.
 
-## Methodology
+The M5 dataset contains hierarchical retail sales across products, departments, categories, stores, and states. Demand patterns vary substantially across series, including products with frequent zero-sales observations.
 
-- **Model:** LightGBM
-- **Feature engineering:** Calendar-based features, historical sales features, and other time-related predictors
-- **Forecasting strategy:** Recursive 28-day prediction
-- **Evaluation:** Kaggle competition leaderboard and local validation metrics
+The competition evaluates forecasts using **Weighted Root Mean Squared Scaled Error (WRMSSE)**.
 
-## Workflow
+## 2. Modeling Pipeline
 
-1. Load and inspect the competition datasets.
-2. Process sales history, calendar information, and selling prices.
-3. Construct features for the forecasting model.
-4. Train the LightGBM model.
-5. Generate daily forecasts for the 28-day prediction horizon.
-6. Format predictions into the Kaggle submission template.
-7. Submit predictions and review leaderboard performance.
+### Feature Engineering
 
-## Results
+The pipeline constructs 36 candidate features from sales history, calendar information, and selling prices. Constant features are removed before model fitting, leaving 33 features in the recorded training run.
 
-Kaggle leaderboard results from the submitted prediction file:
+Feature groups include:
 
-| Metric | Score |
+| Feature group | Examples |
+|---|---|
+| Calendar | Weekday, month, year, day of month, weekend indicator |
+| Events | Event indicator and a local event-window indicator |
+| Historical lags | 28-, 56-, 84-, and 364-day lags |
+| Rolling statistics | Historical means, standard deviations, and zero-sales ratios over 7, 28, 56, and 364 days |
+| Demand behavior | Non-zero mean sales and short-to-long-term mean ratios |
+| Price and promotions | Selling price, log-transformed price, missing-price indicator, and state-specific SNAP features |
+
+Historical features are calculated from the available sales window for each training or forecast date. The model uses the same selected feature list during inference.
+
+### Training Strategy
+
+The recorded configuration uses a reproducible random sample of 5,000 product–store series.
+
+| Parameter | Value |
 |---|---:|
-| Public Score | 2.87251 |
-| Private Score | 3.03081 |
+| Model | `LGBMRegressor` |
+| Objective | Regression |
+| Candidate features | 36 |
+| Features retained | 33 |
+| Training series | 5,000 |
+| Number of estimators | 1,600 |
+| Learning rate | 0.02 |
+| Number of leaves | 31 |
+| Subsample parameter | 0.8 |
+| Column-sampling parameter | 0.8 |
+| Random seed | 42 |
 
-These are the scores reported for the submitted solution. They are not local MAE or RMSE measurements.
+Training examples are constructed at regularly spaced historical target dates, with target dates ending before the final 28-day validation window.
 
-## Repository Structure
+### Recursive Forecasting
+
+The forecasting function generates predictions one day at a time.
+
+1. Construct features from the currently available history.
+2. Predict the next day's sales.
+3. Clip negative predictions to zero.
+4. Append the predicted values to the historical window.
+5. Repeat until all 28 forecast days are generated.
+
+This procedure is applied to both the validation horizon and the final evaluation horizon.
+
+### Submission Validation
+
+The pipeline aligns predictions with the competition template using series identifiers and constructs the required `F1`–`F28` columns.
+
+Before submission, it checks:
+
+- Expected submission shape: `60,980 × 29`
+- Column names and order against the original template
+- Identifier order against the original template
+- Absence of missing forecast values
+- Non-negative forecast values
+
+## 3. Competition Results
+
+| Evaluation | Score |
+|---|---:|
+| Public leaderboard | 2.87251 |
+| Private leaderboard | 3.03081 |
+
+These are the reported scores for the submitted solution, not locally calculated MAE or RMSE values.
+
+Leaderboard results are provided as an outcome of this particular run. They do not, by themselves, establish performance against a baseline or demonstrate that each feature improves forecasting accuracy.
+
+## 4. Repository Contents
 
 ```text
 m5-retail-sales-forecasting/
@@ -44,21 +94,33 @@ m5-retail-sales-forecasting/
 └── notebook2c59687c3b.ipynb
 ```
 
-## Tools
+The notebook contains the implementation of the training and inference pipeline. The trained model, selected feature list, feature-importance table, run summary, and generated submission are produced as separate artifacts by the notebook.
 
-- Python
-- Pandas
+## 5. Reproducibility
+
+The implementation was developed in Kaggle Notebooks and expects the M5 competition files to be available in the Kaggle input directory.
+
+Required Python packages include:
+
 - NumPy
+- Pandas
 - LightGBM
-- Kaggle Notebooks
+- Joblib
 
-## Limitations and Future Improvements
+The notebook uses a fixed random seed for the training-series sample and records the selected feature list alongside the serialized model.
 
-- Explore additional lag and rolling-window features.
-- Improve validation for time-dependent data.
-- Investigate performance on intermittent and zero-sales products.
-- Compare alternative forecasting strategies and feature sets.
+To reproduce the run, configure the competition dataset, execute the notebook cells in order, and verify the generated submission before submitting it to Kaggle.
 
-## Disclaimer
+## 6. Limitations and Future Work
 
-This repository documents an educational machine learning project using the Kaggle M5 Forecasting competition dataset. The reported leaderboard scores correspond to the submitted solution and may not be reproducible without the same data processing and modeling configuration.
+Several aspects warrant further evaluation:
+
+- **Sampling coverage:** Training is performed on 5,000 sampled series rather than all 30,490 series.
+- **Baseline comparison:** The recorded leaderboard scores need to be complemented by controlled comparisons against seasonal-naive and simpler feature-based baselines.
+- **Feature ablation:** The contribution of the added lag, rolling-statistic, calendar, and price features should be measured independently.
+- **Demand heterogeneity:** Performance should be evaluated separately for intermittent-demand and zero-sales-heavy series.
+- **Validation methodology:** The forecasting procedure and feature construction should be tested under a consistent time-based validation protocol.
+
+## 7. Project Scope
+
+This repository documents an applied machine learning project focused on retail demand forecasting, feature engineering, recursive inference, and competition submission integrity. The current implementation is an experimental forecasting pipeline rather than a production-ready demand planning system.
