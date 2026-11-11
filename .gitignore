@@ -1,0 +1,9 @@
+# Raw data and generated artifacts are not versioned
+data/
+artifacts/
+*.pkl
+*.npy
+*.csv
+__pycache__/
+*.pyc
+.env

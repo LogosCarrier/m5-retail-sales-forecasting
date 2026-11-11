@@ -1,0 +1,10 @@
+# -*- coding: utf-8 -*-
+"""Run the full M5 self-iteration loop end to end."""
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from m5_pipeline import run
+
+if __name__ == '__main__':
+    run()

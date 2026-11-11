@@ -1,0 +1,161 @@
+{
+  "finished": "2026-11-10 16:59:26",
+  "minutes": 5.4,
+  "baseline_wrmsse": 1.11829,
+  "best_local": {
+    "id": "8a7d7b1df162",
+    "score": 0.63066,
+    "cfg": {
+      "name": "A_base_B",
+      "features": "base",
+      "objective": "regression",
+      "num_leaves": 63,
+      "lr": 0.05,
+      "trees": 700,
+      "windows": [
+        1829,
+        1857,
+        1885
+      ]
+    },
+    "stage": "B"
+  },
+  "post_process": {
+    "alpha": 1.0,
+    "beta": 0.0,
+    "score": 0.70669
+  },
+  "experiments": [
+    {
+      "stage": "A",
+      "name": "A_base",
+      "score": 0.717922,
+      "seconds": 11.1
+    },
+    {
+      "stage": "A",
+      "name": "A_price",
+      "score": 0.724953,
+      "seconds": 11.3
+    },
+    {
+      "stage": "A",
+      "name": "A_long",
+      "score": 0.718687,
+      "seconds": 11.3
+    },
+    {
+      "stage": "A",
+      "name": "A_full",
+      "score": 0.72418,
+      "seconds": 11.6
+    },
+    {
+      "stage": "A",
+      "name": "A_poisson",
+      "score": 0.725603,
+      "seconds": 15.9
+    },
+    {
+      "stage": "A",
+      "name": "A_tweedie",
+      "score": 0.731757,
+      "seconds": 17.1
+    },
+    {
+      "stage": "A",
+      "name": "A_deep",
+      "score": 0.711534,
+      "seconds": 21.0
+    },
+    {
+      "stage": "A",
+      "name": "A_2win",
+      "score": 0.726704,
+      "seconds": 16.2
+    },
+    {
+      "stage": "B",
+      "name": "A_deep_B",
+      "score": 0.640558,
+      "seconds": 82.4
+    },
+    {
+      "stage": "B",
+      "name": "A_base_B",
+      "score": 0.630655,
+      "seconds": 44.6
+    },
+    {
+      "stage": "C",
+      "name": "C_long5",
+      "score": 0.974936,
+      "seconds": 78.3
+    },
+    {
+      "stage": "C",
+      "name": "C_full2",
+      "score": 0.978464,
+      "seconds": 83.0
+    },
+    {
+      "stage": "C",
+      "name": "C_full2deep",
+      "score": 0.996801,
+      "seconds": 137.3
+    },
+    {
+      "stage": "D",
+      "name": "D_base_more",
+      "score": 0.632868,
+      "seconds": 115.2
+    },
+    {
+      "stage": "D",
+      "name": "D_base_deep",
+      "score": 0.636461,
+      "seconds": 118.7
+    }
+  ],
+  "kaggle": {
+    "public": 0.0,
+    "private_best": 0.66138,
+    "best_ref": "58194184",
+    "top10_threshold": 0.69934,
+    "top5_threshold": 0.64451,
+    "leaderboard_teams": 5582,
+    "passes_top10": true,
+    "submissions": [
+      [
+        0.0,
+        0.68033,
+        "58194449"
+      ],
+      [
+        0.0,
+        0.66138,
+        "58194184"
+      ],
+      [
+        0.0,
+        0.80569,
+        "58193457"
+      ]
+    ]
+  },
+  "reproduce": {
+    "best_submission_ref": "58194184",
+    "best_private_score": 0.66138,
+    "final_windows": [
+      1789,
+      1829,
+      1857,
+      1885,
+      1913
+    ],
+    "final_trees": 800,
+    "final_lr": 0.045,
+    "note": "run_all.py 会按登记簿断点续跑，最终训练窗口已固定为产生最佳成绩的组合"
+  },
+  "note": "Local absolute paths and raw Kaggle CLI output are omitted from the published copy."
+}
